@@ -52,4 +52,8 @@ class NoteBook:
             n.notes.append(Note.fromJSON(an))
         return n
 
-
+    def getAllMarks(self):
+        marks_list = set()
+        for n in self.notes:
+            marks_list.update(set(n.marks))
+        return marks_list
