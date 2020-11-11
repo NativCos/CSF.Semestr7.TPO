@@ -3,9 +3,7 @@ Business logic
 """
 from datetime import datetime
 from ipaddress import IPv4Address
-import json
 import logging
-import sys
 
 _logger = logging.getLogger("ipnotebook.program")
 _logger.setLevel(logging.DEBUG)
@@ -44,21 +42,11 @@ class NoteBook:
     """notebook"""
     notes = []  # of ipnotebook.program.Note
 
-    @staticmethod
-    def open(path_to_file):
-        with open(path_to_file, 'r') as f:
-            json_dict = json.load(fp=f)
-        return NoteBook._fromJSON(json_dict)
-
-    def save(self, path_to_file):
-        with open(path_to_file, 'w') as f:
-            json.dump(self._toJSON(), fp=f)
-
-    def _toJSON(self):
+    def toJSON(self):
         return [x.toJSON() for x in self.notes]
 
     @staticmethod
-    def _fromJSON(json_dict):
+    def fromJSON(json_dict):
         n = NoteBook()
         for an in json_dict:
             n.notes.append(Note.fromJSON(an))

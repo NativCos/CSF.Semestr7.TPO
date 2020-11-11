@@ -8,7 +8,7 @@ from .mainwindow import MainWindow
 import logging
 
 
-FORMAT = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+FORMAT = '%(asctime)s - %(name)s - %(funcName)s - %(levelname)s - %(message)s'
 logging.basicConfig(format=FORMAT)
 
 
