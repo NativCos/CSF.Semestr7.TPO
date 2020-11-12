@@ -5,11 +5,6 @@ Run program
 import sys
 from PyQt5 import QtWidgets
 from .mainwindow import MainWindow
-import logging
-
-
-FORMAT = '%(asctime)s - %(name)s - %(funcName)s - %(levelname)s - %(message)s'
-logging.basicConfig(format=FORMAT)
 
 
 def run():

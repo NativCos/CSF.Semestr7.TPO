@@ -2,16 +2,15 @@
 Main Window controller
 """
 import os
-
 from PyQt5 import QtWidgets, uic, QtCore
 import sys
 import logging
 import json
-
 from PyQt5.QtCore import QAbstractTableModel, Qt, QSize
-from PyQt5.QtWidgets import QFileDialog, QDialog, QTableWidgetItem, QCheckBox, QTableWidget
-
+from PyQt5.QtGui import QBrush, QColor, QIcon, QPixmap, QResizeEvent
+from PyQt5.QtWidgets import QFileDialog, QDialog, QTableWidgetItem, QCheckBox, QTableWidget, QPushButton
 from .program import NoteBook, Note, FILENAME_EXTENSION
+from ipnotebook import confpars
 
 
 _logger = logging.getLogger("ipnotebook.mainwindow")
@@ -70,6 +69,7 @@ class MainWindow(QtWidgets.QMainWindow):
             else:
                 _path_to_work_notebook = dialog.selectedFiles()[0] + '.' + FILENAME_EXTENSION
             _create()
+            self.def_table_notes_setall(_notebook.notes)
             self.action_saveas.setEnabled(True)
             self.action_save.setEnabled(True)
             self.setWindowTitle(_path_to_work_notebook)
@@ -84,6 +84,7 @@ class MainWindow(QtWidgets.QMainWindow):
             _logger.debug('selected is ' + dialog.selectedFiles()[0])
             _path_to_work_notebook = dialog.selectedFiles()[0]
             _open()
+            self.def_table_notes_setall(_notebook.notes)
             self.action_saveas.setEnabled(True)
             self.action_save.setEnabled(True)
             self.setWindowTitle(_path_to_work_notebook)
@@ -98,7 +99,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.tableWidget_notes.setRowCount(0)
 
     def def_table_marks_setall(self, marks_list):
-        for i in len(marks_list):
+        for i in range(len(marks_list)):
             chkBoxItem = QTableWidgetItem()
             chkBoxItem.setFlags(Qt.ItemIsUserCheckable | Qt.ItemIsEnabled)
             chkBoxItem.setCheckState(Qt.Checked)
@@ -107,23 +108,43 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def def_table_notes_setall(self, notes):
         self.tableWidget_notes.setRowCount(len(notes))
-        for i in len(notes):
+        for i in range(len(notes)):
             iteam_ip = QTableWidgetItem(str(notes[i].ip_address))
+            iteam_ip.setFlags(Qt.ItemIsEditable)
+            iteam_ip.setForeground(QBrush(QColor(255, 255, 255)))
             self.tableWidget_notes.setItem(i, 0, iteam_ip)
             iteam_mask = QTableWidgetItem(str(notes[i].mask))
+            iteam_mask.setFlags(Qt.ItemIsEditable)
+            iteam_mask.setForeground(QBrush(QColor(255, 255, 255)))
             self.tableWidget_notes.setItem(i, 1, iteam_mask)
             iteam_date = QTableWidgetItem(str(notes[i].date_of_creation))
+            iteam_date.setFlags(Qt.ItemIsEditable)
+            iteam_date.setForeground(QBrush(QColor(255, 255, 255)))
             self.tableWidget_notes.setItem(i, 2, iteam_date)
-            iteam_marks = QTableWidgetItem(str(notes[i].date_of_creation))
-            iteam_marks.setFlags(Qt.ItemIsEditable)
+            marks_str = ''
+            for mark in notes[i].marks:
+                marks_str += ' ' + mark
+            iteam_marks = QTableWidgetItem(marks_str)
             self.tableWidget_notes.setItem(i, 3, iteam_marks)
-            iteam_marks = QTableWidgetItem(str(notes[i].date_of_creation))
-            iteam_marks.setFlags(Qt.ItemIsEditable)
-            self.tableWidget_notes.setItem(i, 3, iteam_marks)
+            iteam_text = QTableWidgetItem(str(notes[i].text))
+            self.tableWidget_notes.setItem(i, 4, iteam_text)
+            iteam_button = QPushButton(self.tableWidget_notes)
+            iteam_button.setMaximumWidth(64)
+            iteam_button.setMaximumHeight(24)
+            iteam_button.setText('remove')
+            self.tableWidget_notes.setCellWidget(i, 5, iteam_button)
+        self.tableWidget_notes.horizontalHeader().setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeToContents)
+        self.tableWidget_notes.horizontalHeader().setSectionResizeMode(1, QtWidgets.QHeaderView.ResizeToContents)
+        self.tableWidget_notes.horizontalHeader().setSectionResizeMode(2, QtWidgets.QHeaderView.ResizeToContents)
+        self.tableWidget_notes.setColumnWidth(5,64)
+
+    def def_table_notes_resize(self, event):
+        if event.oldSize().width() != -1:
+            self.tableWidget_notes.setColumnWidth(4, self.tableWidget_notes.columnWidth(4) + (event.size()-event.oldSize()).width())
 
     def __init__(self):
         super(MainWindow, self).__init__()
-        uic.loadUi(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'resources', 'mainwindow.ui'), self)
+        uic.loadUi(os.path.join(confpars['main']['proj_root'], 'resources', 'mainwindow.ui'), self)
 
         self.statusBar.showMessage('Ready')
         self.action_saveas.triggered.connect(self.def_saveas)
@@ -133,8 +154,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.action_exit.triggered.connect(self.def_exit)
         self.def_table_marks_clear()
         self.def_table_notes_clear()
-        self.tableWidget_notes = QTableWidget()
-        self.tableWidget_notes.horizontalHeader().setSectionResizeMode(1, QtWidgets.QHeaderView.ResizeToContents)
+        self.tableWidget_notes.resizeEvent = self.def_table_notes_resize
 
         self.show()
 
