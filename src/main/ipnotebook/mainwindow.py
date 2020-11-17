@@ -246,14 +246,15 @@ class MainWindow(QtWidgets.QMainWindow):
         self.lineEdit_search.setText('')
         self.def_refresh_tables()
 
+    # TODO: TDD
     def def_cellchanged(self, r, c):
         if self._refreshing_table_notes:
             return
         n = self._notebook.get_note(self.tableWidget_notes.cellWidget(r, 5).note_id)
-        n.marks = set(self.tableWidget_notes.item(r, 3).text().strip().split(' '))
+        n.marks = set(self.tableWidget_notes.item(r, 3).text().strip().split(' '))  # TODO: нет проверки фходного значения
         if len(n.marks) == 1 and '' in n.marks:
             n.marks = set()
-        n.text = self.tableWidget_notes.item(r, 4).text()
+        n.text = self.tableWidget_notes.item(r, 4).text()  # TODO: не проверки входного значения
         self.def_refresh_tables()
         self.statusBar.showMessage('Есть несохраненные изменения')
 
