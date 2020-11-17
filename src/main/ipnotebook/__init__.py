@@ -5,19 +5,19 @@ import os
 
 _proj_root = os.path.dirname(os.path.realpath(__file__))
 
-confpars = configparser.SafeConfigParser()
-confpars.read(os.path.join(_proj_root, 'conf.ini'))
-confpars['main']['proj_root'] = _proj_root
+configs = configparser.SafeConfigParser()
+configs.read(os.path.join(_proj_root, 'baseconfig.ini'))
+configs['main']['proj_root'] = _proj_root
 
 logging_format = "%(asctime)s - %(name)s - %(funcName)s - %(levelname)s - %(message)s"
 logging.basicConfig(format=logging_format)
-if confpars['main']['logging_level'] == 'DEBUG':
+if configs['logging']['level'] == 'DEBUG':
     logging.getLogger('ipnotebook').setLevel(logging.DEBUG)
-elif confpars['main']['logging_level'] == 'ERROR':
+elif configs['logging']['level'] == 'ERROR':
     logging.getLogger('ipnotebook').setLevel(logging.ERROR)
-elif confpars['main']['logging_level'] == 'CRITICAL':
+elif configs['logging']['level'] == 'CRITICAL':
     logging.getLogger('ipnotebook').setLevel(logging.CRITICAL)
-elif confpars['main']['logging_level'] == 'FATAL':
+elif configs['main']['level'] == 'FATAL':
     logging.getLogger('ipnotebook').setLevel(logging.FATAL)
-elif confpars['main']['logging_level'] == 'INFO':
+elif configs['logging']['level'] == 'INFO':
     logging.getLogger('ipnotebook').setLevel(logging.INFO)

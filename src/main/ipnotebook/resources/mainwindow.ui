@@ -144,7 +144,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="pushButton">
+           <widget class="QPushButton" name="pushButton_startsearchstring">
             <property name="minimumSize">
              <size>
               <width>24</width>
@@ -162,7 +162,54 @@
             </property>
             <property name="icon">
              <iconset>
-              <normaloff>clear.svg</normaloff>clear.svg</iconset>
+              <normaloff>loupe.svg</normaloff>loupe.svg</iconset>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>24</width>
+              <height>24</height>
+             </size>
+            </property>
+            <property name="checkable">
+             <bool>false</bool>
+            </property>
+            <property name="autoRepeat">
+             <bool>false</bool>
+            </property>
+            <property name="autoExclusive">
+             <bool>false</bool>
+            </property>
+            <property name="autoRepeatDelay">
+             <number>304</number>
+            </property>
+            <property name="autoRepeatInterval">
+             <number>100</number>
+            </property>
+            <property name="flat">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="pushButton_clearsearchstring">
+            <property name="minimumSize">
+             <size>
+              <width>24</width>
+              <height>24</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>24</width>
+              <height>24</height>
+             </size>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+            <property name="icon">
+             <iconset>
+              <normaloff>rm.svg</normaloff>rm.svg</iconset>
             </property>
             <property name="iconSize">
              <size>
@@ -201,7 +248,7 @@
            <number>6</number>
           </property>
           <attribute name="horizontalHeaderMinimumSectionSize">
-           <number>50</number>
+           <number>0</number>
           </attribute>
           <attribute name="horizontalHeaderDefaultSectionSize">
            <number>126</number>
@@ -259,7 +306,7 @@
            <number>2</number>
           </property>
           <item>
-           <widget class="QPlainTextEdit" name="add_plainTextEdit_1">
+           <widget class="QPlainTextEdit" name="add_plainTextEdit_ip">
             <property name="minimumSize">
              <size>
               <width>0</width>
@@ -278,7 +325,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QPlainTextEdit" name="add_plainTextEdit_2">
+           <widget class="QPlainTextEdit" name="add_plainTextEdit_mask">
             <property name="minimumSize">
              <size>
               <width>0</width>
@@ -297,26 +344,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QPlainTextEdit" name="add_plainTextEdit_3">
-            <property name="minimumSize">
-             <size>
-              <width>0</width>
-              <height>32</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>16777215</width>
-              <height>32</height>
-             </size>
-            </property>
-            <property name="placeholderText">
-             <string>Дата создания</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPlainTextEdit" name="add_plainTextEdit_4">
+           <widget class="QPlainTextEdit" name="add_plainTextEdit_marks">
             <property name="minimumSize">
              <size>
               <width>0</width>
@@ -335,7 +363,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QPlainTextEdit" name="add_plainTextEdit_5">
+           <widget class="QPlainTextEdit" name="add_plainTextEdit_text">
             <property name="minimumSize">
              <size>
               <width>0</width>
@@ -354,7 +382,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="add_pushButton">
+           <widget class="QPushButton" name="pushButton_add">
             <property name="minimumSize">
              <size>
               <width>24</width>
