@@ -18,6 +18,15 @@ _logger = logging.getLogger("ipnotebook.mainwindow")
 _logger.setLevel(logging.DEBUG)
 
 
+def _pars_marks(marks_str) -> list:
+    marks = marks_str.strip().split(' ')
+    try:
+        marks.remove('')
+    except ValueError:
+        pass
+    return marks
+
+
 class MainWindow(QtWidgets.QMainWindow):
     _notebook = NoteBook()
     _path_to_work_notebook = ''
@@ -31,7 +40,7 @@ class MainWindow(QtWidgets.QMainWindow):
         uic.loadUi(os.path.join(configs['main']['proj_root'], 'resources', 'mainwindow.ui'), self)
 
         self.statusBar.showMessage('Не открыт блокнот')
-        self.tableWidget_notes.cellChanged.connect(self.def_cellchanged)
+        self.tableWidget_notes.cellChanged.connect(self.def_change_note)
         self.tableWidget_marks.itemClicked.connect(self.def_table_marks_changed)
         self.make_active_input(False)
         self.action_saveas.setEnabled(False)
@@ -41,9 +50,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self.action_open.triggered.connect(self.def_open)
         self.action_create.triggered.connect(self.def_create)
         self.action_exit.triggered.connect(QtCore.QCoreApplication.instance().quit)
-        self.pushButton_add.clicked.connect(self.def_addnote)
-        self.pushButton_clearsearchstring.clicked.connect(self.def_clearsearchstring)
-        self.pushButton_startsearchstring.clicked.connect(self.def_startsearch)
+        self.pushButton_add.clicked.connect(self.def_add_note)
+        self.pushButton_clearsearchstring.clicked.connect(self.def_clear_search_line)
+        self.pushButton_startsearchstring.clicked.connect(self.def_start_search)
         self.def_table_marks_clear()
         self.def_table_notes_clear()
         self.tableWidget_notes.setSortingEnabled(True)  # TODO: как реализовать сортировку для столбйа дата???
@@ -171,15 +180,15 @@ class MainWindow(QtWidgets.QMainWindow):
         for i in range(len(notes)):
             item_ip = QTableWidgetItem(str(notes[i].ip_address))
             item_ip.setFlags(Qt.ItemIsEditable)
-            #item_ip.setForeground(QBrush(QColor(255, 255, 255)))
+            item_ip.setForeground(QBrush(QColor(160, 160, 160)))
             self.tableWidget_notes.setItem(i, 0, item_ip)
             item_mask = QTableWidgetItem(str(notes[i].mask))
             item_mask.setFlags(Qt.ItemIsEditable)
-            #item_mask.setForeground(QBrush(QColor(255, 255, 255)))
+            item_mask.setForeground(QBrush(QColor(160, 160, 160)))
             self.tableWidget_notes.setItem(i, 1, item_mask)
             item_date = QTableWidgetItem(notes[i].date_of_creation.strftime('%H:%M %d %B %Y'))
             item_date.setFlags(Qt.ItemIsEditable)
-            #item_date.setForeground(QBrush(QColor(255, 255, 255)))
+            item_date.setForeground(QBrush(QColor(160, 160, 160)))
             self.tableWidget_notes.setItem(i, 2, item_date)
             item_marks = QTableWidgetItem(' '.join(notes[i].marks))
             self.tableWidget_notes.setItem(i, 3, item_marks)
@@ -190,7 +199,7 @@ class MainWindow(QtWidgets.QMainWindow):
             item_button.setMaximumHeight(24)
             item_button.setText('remove')
             item_button.note_id = notes[i].ID
-            item_button.clicked.connect(self.def_removenote)
+            item_button.clicked.connect(self.def_remove_note)
             self.tableWidget_notes.setCellWidget(i, 5, item_button)
         self.tableWidget_notes.horizontalHeader().setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeToContents)
         self.tableWidget_notes.horizontalHeader().setSectionResizeMode(1, QtWidgets.QHeaderView.ResizeToContents)
@@ -203,21 +212,17 @@ class MainWindow(QtWidgets.QMainWindow):
             return
         if item.checkState() == QtCore.Qt.Unchecked:
             self._exclusion_marks.add(item.text())
-        elif set([item.text()]).issubset(self._exclusion_marks):
+        elif {item.text()}.issubset(self._exclusion_marks):
             self._exclusion_marks.remove(item.text())
         self.def_table_notes_set(self._notebook.get_all_notes(exclusion_marks=self._exclusion_marks))
 
-    def def_addnote(self):
+    def def_add_note(self):
         ip_str = self.add_plainTextEdit_ip.toPlainText()
         mask_str = self.add_plainTextEdit_mask.toPlainText()
         marks_str = self.add_plainTextEdit_marks.toPlainText()
         text_str = self.add_plainTextEdit_text.toPlainText()
 
-        marks = marks_str.strip().split(' ')
-        try:
-            marks.remove('')
-        except ValueError:
-            pass
+        marks = _pars_marks(marks_str)
         if data_validation.is_valid_ipaddress(ip_str) and \
                 data_validation.is_valid_mask(mask_str) and \
                 data_validation.is_valid_marks(marks) and \
@@ -232,29 +237,34 @@ class MainWindow(QtWidgets.QMainWindow):
         self.add_plainTextEdit_marks.setPlainText('')
         self.add_plainTextEdit_text.setPlainText('')
 
-    def def_removenote(self):
+    def def_remove_note(self):
         sender = self.sender()
         self._notebook.remove_note(sender.note_id)
 
-    def def_startsearch(self):  # TODO: сделать поиск
+    def def_start_search(self):  # TODO: сделать поиск
         if self.lineEdit_search.text() != '':
             self.def_table_notes_set(self._notebook.full_text_search(self.lineEdit_search.text()))
         else:
             self.def_table_notes_clear()
 
-    def def_clearsearchstring(self):
+    def def_clear_search_line(self):
         self.lineEdit_search.setText('')
         self.def_refresh_tables()
 
     # TODO: TDD
-    def def_cellchanged(self, r, c):
-        if self._refreshing_table_notes:
-            return
+    def def_change_note(self, r, c):
         n = self._notebook.get_note(self.tableWidget_notes.cellWidget(r, 5).note_id)
-        n.marks = set(self.tableWidget_notes.item(r, 3).text().strip().split(' '))  # TODO: нет проверки фходного значения
-        if len(n.marks) == 1 and '' in n.marks:
-            n.marks = set()
-        n.text = self.tableWidget_notes.item(r, 4).text()  # TODO: не проверки входного значения
+        if c == 3:
+            if self._refreshing_table_notes:
+                return
+            marks = _pars_marks(self.tableWidget_notes.item(r, 3).text())
+            if not data_validation.is_valid_marks(marks):
+                return
+            n.marks = set(marks)
+        elif c == 4:
+            if not data_validation.is_valid_text(self.tableWidget_notes.item(r, 4).text()):
+                return
+            n.text = self.tableWidget_notes.item(r, 4).text()
         self.def_refresh_tables()
         self.statusBar.showMessage('Есть несохраненные изменения')
 
@@ -285,3 +295,4 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.action_saveas.setEnabled(True)
         self.action_save.setEnabled(True)
+
