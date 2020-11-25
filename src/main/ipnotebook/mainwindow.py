@@ -253,10 +253,10 @@ class MainWindow(QtWidgets.QMainWindow):
 
     # TODO: TDD
     def def_change_note(self, r, c):
+        if self._refreshing_table_notes:
+            return
         n = self._notebook.get_note(self.tableWidget_notes.cellWidget(r, 5).note_id)
         if c == 3:
-            if self._refreshing_table_notes:
-                return
             marks = _pars_marks(self.tableWidget_notes.item(r, 3).text())
             if not data_validation.is_valid_marks(marks):
                 return
@@ -295,4 +295,3 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.action_saveas.setEnabled(True)
         self.action_save.setEnabled(True)
-
