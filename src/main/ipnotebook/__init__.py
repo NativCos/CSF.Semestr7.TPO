@@ -8,6 +8,7 @@ _proj_root = os.path.dirname(os.path.realpath(__file__))
 configs = configparser.SafeConfigParser()
 configs.read(os.path.join(_proj_root, 'baseconfig.ini'))
 configs['main']['proj_root'] = _proj_root
+configs['main']['strftime_format'] = '%%H:%%M %%d %%B %%Y'
 
 logging_format = "%(asctime)s - %(name)s - %(funcName)s - %(levelname)s - %(message)s"
 logging.basicConfig(format=logging_format)

@@ -70,7 +70,7 @@ class NoteBook(QObject):
 
     def __init__(self):
         super().__init__()
-        self._notes = [] # of ipnotebook.program.
+        self._notes = []  # of ipnotebook.program.
         self._auto_increment_id = 0
 
     def to_json(self):
@@ -126,7 +126,7 @@ class NoteBook(QObject):
     def full_text_search(self, q):
         res = []
         for n in self._notes:
-            if (str(n.ip_address)+str(n.mask)+n.date_of_creation.strftime('%H:%M %d %B %Y')+n.text+str(n.marks)).find(q) >= 0:
+            if (str(n.ip_address)+str(n.mask)+n.date_of_creation.strftime(configs['main']['strftime_format'])+n.text+str(n.marks)).find(q) >= 0:
                 res.append(n)
         return res
 

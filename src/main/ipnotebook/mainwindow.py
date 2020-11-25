@@ -106,9 +106,7 @@ class MainWindow(QtWidgets.QMainWindow):
             _logger.debug('selected is ' + dialog.selectedFiles()[0])
             self._path_to_work_notebook = dialog.selectedFiles()[0]
             self._save_file()
-            self.setWindowTitle(self._path_to_work_notebook)
-            self.autosave_timer.start(60 * 1000)
-            self.statusBar.showMessage('Сохранено')
+            self.activate_window()
 
     def def_save(self):
         _logger.debug('call def_save')
@@ -128,11 +126,7 @@ class MainWindow(QtWidgets.QMainWindow):
             else:
                 self._path_to_work_notebook = dialog.selectedFiles()[0] + '.' + configs['main']['filename_extension']
             self._create_file()
-            self.def_refresh_tables()
-            self.make_active_input(True)
-            self.setWindowTitle(self._path_to_work_notebook)
-            self.autosave_timer.start(60 * 1000)
-            self.statusBar.showMessage('Сохранено')
+            self.activate_window()
 
     def def_open(self):
         _logger.debug("call def_open!")
@@ -144,11 +138,7 @@ class MainWindow(QtWidgets.QMainWindow):
             _logger.debug('selected is ' + dialog.selectedFiles()[0])
             self._path_to_work_notebook = dialog.selectedFiles()[0]
             self._open_file()
-            self.def_refresh_tables()
-            self.make_active_input(True)
-            self.setWindowTitle(self._path_to_work_notebook)
-            self.autosave_timer.start(60 * 1000)
-            self.statusBar.showMessage('Сохранено')
+            self.activate_window()
 
     def def_table_marks_clear(self):
         self.tableWidget_marks.setRowCount(0)
@@ -186,7 +176,7 @@ class MainWindow(QtWidgets.QMainWindow):
             item_mask.setFlags(Qt.ItemIsEditable)
             item_mask.setForeground(QBrush(QColor(160, 160, 160)))
             self.tableWidget_notes.setItem(i, 1, item_mask)
-            item_date = QTableWidgetItem(notes[i].date_of_creation.strftime('%H:%M %d %B %Y'))
+            item_date = QTableWidgetItem(notes[i].date_of_creation.strftime(configs['main']['strftime_format']))
             item_date.setFlags(Qt.ItemIsEditable)
             item_date.setForeground(QBrush(QColor(160, 160, 160)))
             self.tableWidget_notes.setItem(i, 2, item_date)
@@ -241,7 +231,7 @@ class MainWindow(QtWidgets.QMainWindow):
         sender = self.sender()
         self._notebook.remove_note(sender.note_id)
 
-    def def_start_search(self):  # TODO: сделать поиск
+    def def_start_search(self):
         if self.lineEdit_search.text() != '':
             self.def_table_notes_set(self._notebook.full_text_search(self.lineEdit_search.text()))
         else:
@@ -251,20 +241,22 @@ class MainWindow(QtWidgets.QMainWindow):
         self.lineEdit_search.setText('')
         self.def_refresh_tables()
 
-    # TODO: TDD
+    def update_note(self, note_id, marks_str, text_str):
+        n = self._notebook.get_note(note_id)
+        marks = _pars_marks(marks_str)
+        if not data_validation.is_valid_marks(marks):
+            return
+        n.marks = set(marks)
+        if not data_validation.is_valid_text(text_str):
+            return
+        n.text = text_str
+
     def def_change_note(self, r, c):
         if self._refreshing_table_notes:
             return
-        n = self._notebook.get_note(self.tableWidget_notes.cellWidget(r, 5).note_id)
-        if c == 3:
-            marks = _pars_marks(self.tableWidget_notes.item(r, 3).text())
-            if not data_validation.is_valid_marks(marks):
-                return
-            n.marks = set(marks)
-        elif c == 4:
-            if not data_validation.is_valid_text(self.tableWidget_notes.item(r, 4).text()):
-                return
-            n.text = self.tableWidget_notes.item(r, 4).text()
+        self.update_note(self.tableWidget_notes.cellWidget(r, 5).note_id,
+                         self.tableWidget_notes.item(r, 3).text(),
+                         self.tableWidget_notes.item(r, 4).text())
         self.def_refresh_tables()
         self.statusBar.showMessage('Есть несохраненные изменения')
 
@@ -295,3 +287,10 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.action_saveas.setEnabled(True)
         self.action_save.setEnabled(True)
+
+    def activate_window(self):
+        self.def_refresh_tables()
+        self.make_active_input(True)
+        self.setWindowTitle(self._path_to_work_notebook)
+        self.autosave_timer.start(60 * 1000)
+        self.statusBar.showMessage('Сохранено')
