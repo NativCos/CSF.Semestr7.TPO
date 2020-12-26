@@ -5,11 +5,23 @@ from datetime import datetime
 from ipaddress import IPv4Address
 from PyQt5.QtCore import pyqtSignal, QObject
 import logging
-from . import configs
-
+from . import configs, data_validation
 
 _logger = logging.getLogger("ipnotebook.program")
 _logger.setLevel(logging.DEBUG)
+
+
+def _pars_marks(marks_str) -> list:
+    marks = marks_str.strip().split(' ')
+    try:
+        marks.remove('')
+    except ValueError:
+        pass
+    return marks
+
+
+class DataDontValidException(BaseException):
+    """данные некорректны"""
 
 
 class Note:
@@ -115,6 +127,17 @@ class NoteBook(QObject):
         note.ID = self._get_new_id()
         self._notes.append(note)
         self.changeEvent.emit()
+
+    # TDD
+    def update_note(self, note_id, marks_str, text_str):
+        n = self.get_note(note_id)
+        marks = _pars_marks(marks_str)
+        if not data_validation.is_valid_marks(marks):
+            raise DataDontValidException()
+        n.marks = set(marks)
+        if not data_validation.is_valid_text(text_str):
+            raise DataDontValidException()
+        n.text = text_str
 
     def remove_note(self, note_id: int):
         for n in self._notes:

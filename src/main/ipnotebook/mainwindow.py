@@ -18,15 +18,6 @@ _logger = logging.getLogger("ipnotebook.mainwindow")
 _logger.setLevel(logging.DEBUG)
 
 
-def _pars_marks(marks_str) -> list:
-    marks = marks_str.strip().split(' ')
-    try:
-        marks.remove('')
-    except ValueError:
-        pass
-    return marks
-
-
 class MainWindow(QtWidgets.QMainWindow):
     _notebook = NoteBook()
     _path_to_work_notebook = ''
@@ -241,16 +232,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.lineEdit_search.setText('')
         self.def_refresh_tables()
 
-    def update_note(self, note_id, marks_str, text_str):
-        n = self._notebook.get_note(note_id)
-        marks = _pars_marks(marks_str)
-        if not data_validation.is_valid_marks(marks):
-            return
-        n.marks = set(marks)
-        if not data_validation.is_valid_text(text_str):
-            return
-        n.text = text_str
-
+    # TDD
     def def_change_note(self, r, c):
         if self._refreshing_table_notes:
             return
