@@ -75,6 +75,9 @@ class Note:
             _logger.error("other is not ipnotebook.program.Note class")
             raise Exception("other is not ipnotebook.program.Note class")
 
+    def __repr__(self):
+        return f"<{self.__class__} ID={self.ID} ip_address={self.ip_address} mask={self.mask} date_of_creation={self.date_of_creation} marks={self.marks} text={self.text}>"
+
 
 class NoteBook(QObject):
     """notebook"""
@@ -120,10 +123,17 @@ class NoteBook(QObject):
         _logger.error('note with ID = ' + str(id) + 'does not exist')
         raise 'note with ID = ' + str(id) + 'does not exist'
 
-    def add_note(self, note: Note):
+    def add_note(self, ip_str, mask_str, date_of_creation, marks_str, text_str):
+        marks = _pars_marks(marks_str)
+        if data_validation.is_valid_ipaddress(ip_str) and \
+                data_validation.is_valid_mask(mask_str) and \
+                data_validation.is_valid_marks(marks) and \
+                data_validation.is_valid_text(text_str):
+            raise DataDontValidException()
+        note = Note(IPv4Address(ip_str), IPv4Address(mask_str), date_of_creation, text_str, set(marks))
         if note.ID != -1:
-            _logger.error('add is not available. note.ID != -1')
-            raise Exception('add is not available')
+            _logger.error(f"add {note} is not available. ID != -1")
+            raise DataDontValidException('add is not available')
         note.ID = self._get_new_id()
         self._notes.append(note)
         self.changeEvent.emit()

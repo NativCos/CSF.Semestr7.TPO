@@ -10,7 +10,7 @@ import json
 from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtGui import QBrush, QColor, QKeySequence
 from PyQt5.QtWidgets import QFileDialog, QDialog, QTableWidgetItem, QPushButton, QTableWidget, QShortcut
-from .program import NoteBook, Note
+from .program import NoteBook, Note, DataDontValidException
 from . import configs
 from . import data_validation
 
@@ -202,17 +202,10 @@ class MainWindow(QtWidgets.QMainWindow):
         mask_str = self.add_plainTextEdit_mask.toPlainText()
         marks_str = self.add_plainTextEdit_marks.toPlainText()
         text_str = self.add_plainTextEdit_text.toPlainText()
-
-        marks = _pars_marks(marks_str)
-        if data_validation.is_valid_ipaddress(ip_str) and \
-                data_validation.is_valid_mask(mask_str) and \
-                data_validation.is_valid_marks(marks) and \
-                data_validation.is_valid_text(text_str):
+        try:
+            self._notebook.add_note(ip_str, mask_str, datetime.now(), marks_str, text_str)
+        except DataDontValidException:
             self.statusBar.showMessage('Некорректные данные для добавления')
-
-        n = Note(IPv4Address(ip_str), IPv4Address(mask_str), datetime.now(), text_str, set(marks))
-        self._notebook.add_note(n)
-
         self.add_plainTextEdit_ip.setPlainText('')
         self.add_plainTextEdit_mask.setPlainText('')
         self.add_plainTextEdit_marks.setPlainText('')
@@ -236,11 +229,15 @@ class MainWindow(QtWidgets.QMainWindow):
     def def_change_note(self, r, c):
         if self._refreshing_table_notes:
             return
-        self.update_note(self.tableWidget_notes.cellWidget(r, 5).note_id,
-                         self.tableWidget_notes.item(r, 3).text(),
-                         self.tableWidget_notes.item(r, 4).text())
-        self.def_refresh_tables()
-        self.statusBar.showMessage('Есть несохраненные изменения')
+        try:
+            self._notebook.update_note(self.tableWidget_notes.cellWidget(r, 5).note_id,
+                                       self.tableWidget_notes.item(r, 3).text(),
+                                       self.tableWidget_notes.item(r, 4).text())
+            self.statusBar.showMessage('Есть несохраненные изменения')
+        except DataDontValidException:
+            self.statusBar.showMessage('Некорректные данные для добавления')
+        finally:
+            self.def_refresh_tables()
 
     def def_refresh_tables(self):
         self.def_table_notes_set(self._notebook.get_all_notes(exclusion_marks=self._exclusion_marks))
