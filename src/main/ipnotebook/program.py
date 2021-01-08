@@ -130,6 +130,14 @@ class NoteBook(QObject):
 
     # TDD
     def update_note(self, note_id, marks_str, text_str):
+        """Refreshes the data in the note.
+
+        :param note_id: int - ipnotebook.program.Note.ID
+        :param marks_str: string of marks. for example: "dog cat lamp door" - it is 4 marks
+        :param text_str: string of text. for example: "This is very important data."
+        :return: None
+        :except ipnotebook.program.DataDontValidException: incorrect data entered
+        """
         n = self.get_note(note_id)
         marks = _pars_marks(marks_str)
         if not data_validation.is_valid_marks(marks):
