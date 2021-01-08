@@ -3,6 +3,7 @@ import unittest
 import os
 import logging
 from ipnotebook.program import NoteBook
+from ipnotebook.program import DataDontValidException
 
 
 logging.root.setLevel(logging.ERROR)
@@ -37,8 +38,11 @@ class UpdateNoteCase(unittest.TestCase):
         marks_set = {'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', 'a'}
         marks_str = ' '.join(marks_set)
         note_id = 1
-        self._notebook.update_note(note_id, marks_str, '')
-        self.assertEqual(self._notebook.get_note(note_id).marks, marks_set)
+        try:
+            self._notebook.update_note(note_id, marks_str, '')
+            self.assertTrue(False)  # тест не пройден. не было исключения о некоррестных введенных данных
+        except DataDontValidException:
+            self.assertTrue(True)  # тест пройден. вернули исключение, как и положено
 
 
 if __name__ == '__main__':
