@@ -115,7 +115,7 @@ class NoteBook(QObject):
         raise 'note with ID = ' + str(id) + 'does not exist'
 
     def add_note(self, ip_str, mask_str, date_of_creation, marks_str, text_str):
-        marks = _pars_marks(marks_str)
+        marks = self._pars_marks(marks_str)
         if data_validation.is_valid_ipaddress(ip_str) and \
                 data_validation.is_valid_mask(mask_str) and \
                 data_validation.is_valid_marks(marks) and \
@@ -140,7 +140,7 @@ class NoteBook(QObject):
         :except ipnotebook.program.DataDontValidException: incorrect data entered
         """
         n = self.get_note(note_id)
-        marks = _pars_marks(marks_str)
+        marks = self._pars_marks(marks_str)
         if not data_validation.is_valid_marks(marks):
             raise DataDontValidException()
         n.marks = set(marks)
