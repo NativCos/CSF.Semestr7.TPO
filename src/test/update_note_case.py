@@ -9,6 +9,9 @@ from ipnotebook.program import DataDontValidException
 logging.root.setLevel(logging.INFO)
 
 
+""" ЭТО ДОЛЖЕН БЫТЬ ИНТЕГРАЦИОННЫЙ ТЕСТ!!!! А НЕ UNIT! ТЫ ЧО ТВОРИШЬ!  *ПИТОНИСТ*"""
+
+
 class MarksCase(unittest.TestCase):
     """ Тест меток """
     def setUp(self) -> None:

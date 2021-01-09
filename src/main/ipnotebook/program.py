@@ -11,15 +11,6 @@ _logger = logging.getLogger("ipnotebook.program")
 _logger.setLevel(logging.DEBUG)
 
 
-def _pars_marks(marks_str) -> list:
-    marks = marks_str.strip().split(' ')
-    try:
-        marks.remove('')
-    except ValueError:
-        pass
-    return marks
-
-
 class DataDontValidException(BaseException):
     """данные некорректны"""
 
@@ -174,3 +165,12 @@ class NoteBook(QObject):
     def _get_new_id(self):
         self._auto_increment_id += 1
         return self._auto_increment_id
+
+    @staticmethod
+    def _pars_marks(marks_str) -> list:
+        marks = marks_str.strip().split(' ')
+        try:
+            marks.remove('')
+        except ValueError:
+            pass
+        return marks
